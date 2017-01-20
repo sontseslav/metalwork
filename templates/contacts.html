@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}OFT-{{ page.name }}{% endblock %}
+
+{% block main %}
+    <main>
+      <h1 class="animtext serv">{{page.name}}</h1>
+      <hr class="contacts_hr">
+      <section class="content contacts">
+        <div class="contacts_screw cont_screw_tl"></div>
+        <div class="contacts_screw cont_screw_tr"></div>
+        <div class="contacts_screw cont_screw_br"></div>
+        <div class="contacts_screw cont_screw_bl"></div>
+        <div id="content-cell">
+          {% autoescape off %}{{ page.upper_text }}{% endautoescape %}
+        </div>
+        <div id="content-form">
+            <form id="feedback-form" method="post" enctype="multipart/form-data" action=""
+                  ng-app="validate"  ng-controller="validateCtrl" name="validForm" novalidate>
+                {% csrf_token %}
+                {% for field in form %}
+                    <p class="contacts_form">{{ field.label }}
+                        {% if field.name == 'u_tel' %}{% elif field.name == 'image' %}
+                        {% else %}<span class="error">* </span>{% endif %}</p>
+                    {{ field }}
+                    {% if field.name == 'u_name' %}
+                        <span class="error" ng-show="validForm.{{ field.name }}.$touched && validForm.{{ field.name }}.$invalid">
+                            <span ng-show="validForm.{{ field.name }}.$error.required">{{ field.help_text }}</span>
+                        </span>
+                    {% elif field.name == 'from_email' %}
+                        <span class="error" ng-show="validForm.{{ field.name }}.$touched && validForm.{{ field.name }}.$invalid">
+                            <span ng-show="validForm.{{ field.name }}.$error.required">Введите email.</span>
+                            <span ng-show="validForm.{{ field.name }}.$error.isVerified">Неправильный email.</span>
+                        </span>
+                    {% elif field.name == 'message' %}
+                        <span class="error" ng-show="validForm.{{ field.name }}.$touched && validForm.{{ field.name }}.$error.required">
+                            Введите Ваше сообщение.
+                        </span>
+                    {% elif field.name == 'image' %}
+                        <p class="contacts_form">{{ field.help_text }}</p>
+                        <p class="error" ng-show="isSet()">{% verbatim %}{{ errorMsg }}{% endverbatim %}</p>
+                    {% endif %}
+                {% endfor %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <p class="{{ message.tags }}">{{ message }}</p>
+                    {% endfor %}
+                {% endif %}
+                <p class="error-text">* обязательные поля</p>
+                <div class="submit">
+                    <input type="submit" ng-hide="validForm.$invalid" value="Отправить">
+                    <input type="submit" style="background-color: #FF0000; background: linear-gradient( to top right, rgba(153, 0, 0, .9), rgba(153, 0, 0, .8), rgba(153, 0, 0, .7), rgba(153, 0, 0, .6) );
+                                                color: grey; cursor: wait;" ng-show="validForm.$invalid" ng-disabled="validForm.$invalid" value="Заполните форму">
+                </div>
+            </form>
+        </div>
+      </section>
+    </main>
+{% endblock %}
